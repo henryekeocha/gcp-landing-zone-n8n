@@ -1,0 +1,7 @@
+project_id                       = "lz-n8n-prod-a1"
+environment                      = "prod"
+region                           = "us-central1"
+vpc_id                           = "projects/lz-n8n-prod-a1/global/networks/prod-n8n-vpc"
+service_networking_connection_id = "projects/lz-n8n-prod-a1/global/networks/prod-n8n-vpc:servicenetworking.googleapis.com"
+db_password_secret_id            = "n8n-db-password-prod"
+tier                             = "db-custom-2-8192"
