@@ -4,19 +4,19 @@
 
 > **Status: complete (validate-only PoC).** Built phase by phase with incremental commits; the history is the changelog. No GCP resources were provisioned; every module is `terraform validate` + `tflint` clean in CI.
 
-A proof-of-concept **GCP landing zone** — multi-project structure, private networking, least-privilege IAM and Secret Manager — hosting a **self-hosted n8n** instance on **Cloud Run**, backed by **Cloud SQL for PostgreSQL** (private IP, automated backups, point-in-time recovery). Everything is expressed as Terraform and validated in CI without touching a real GCP account; the one intentionally manual step (image push + `terraform apply` against a real org/billing account) is documented rather than faked.
+A proof-of-concept **GCP landing zone** (multi-project structure, private networking, least-privilege IAM and Secret Manager) hosting a **self-hosted n8n** instance on **Cloud Run**, backed by **Cloud SQL for PostgreSQL** (private IP, automated backups, point-in-time recovery). Everything is expressed as Terraform and validated in CI without touching a real GCP account; the one intentionally manual step (image push + `terraform apply` against a real org/billing account) is documented rather than faked.
 
 ## Architecture, by phase
 
-- [x] **Phase 0 — Skeleton**: repo structure, license, CI-safe `.gitignore`
-- [x] **Phase 1 — Projects** (`terraform/projects/`): prod / dev / shared-services project structure
-- [x] **Phase 2 — Networking** (`terraform/networking/`): per-environment VPC + subnets, IAP-only SSH (no `0.0.0.0/0` ingress), Cloud NAT egress
-- [x] **Phase 3 — IAM & secrets** (`terraform/iam/`): separate n8n-runtime and CI/CD service accounts, Secret Manager for the n8n encryption key + DB credentials, documented MFA org policy
-- [x] **Phase 4 — PostgreSQL** (`terraform/database/`): Cloud SQL Postgres, private IP only, backups + PITR, deletion protection, restore runbook
-- [x] **Phase 5 — n8n on Cloud Run** (`terraform/n8n/`): n8n with `DB_TYPE=postgresdb`, Cloud SQL Auth Proxy sidecar, secrets injected from Secret Manager
-- [x] **Phase 6 — CI/CD** (`.github/workflows/`): fmt + validate on PR, container build on merge
-- [x] **Phase 7 — Monitoring** (`terraform/monitoring/`): uptime check + alerting policy on the n8n endpoint
-- [x] **Phase 8 — Docs**: architecture diagram, consolidated hand-off runbook
+- [x] **Phase 0: Skeleton**: repo structure, license, CI-safe `.gitignore`
+- [x] **Phase 1: Projects** (`terraform/projects/`): prod / dev / shared-services project structure
+- [x] **Phase 2: Networking** (`terraform/networking/`): per-environment VPC + subnets, IAP-only SSH (no `0.0.0.0/0` ingress), Cloud NAT egress
+- [x] **Phase 3: IAM & secrets** (`terraform/iam/`): separate n8n-runtime and CI/CD service accounts, Secret Manager for the n8n encryption key + DB credentials, documented MFA org policy
+- [x] **Phase 4: PostgreSQL** (`terraform/database/`): Cloud SQL Postgres, private IP only, backups + PITR, deletion protection, restore runbook
+- [x] **Phase 5: n8n on Cloud Run** (`terraform/n8n/`): n8n with `DB_TYPE=postgresdb`, Cloud SQL Auth Proxy sidecar, secrets injected from Secret Manager
+- [x] **Phase 6: CI/CD** (`.github/workflows/`): fmt + validate on PR, container build on merge
+- [x] **Phase 7: Monitoring** (`terraform/monitoring/`): uptime check + alerting policy on the n8n endpoint
+- [x] **Phase 8: Docs**: architecture diagram, consolidated hand-off runbook
 
 ## Architecture
 
@@ -69,4 +69,4 @@ scripts/        # CI policy guard (no public SSH)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
