@@ -72,14 +72,17 @@ jobs:
           test "$code" -ne 0
 
       - name: Image summary
+        env:
+          TAG: n8n-landing-zone:${{ steps.ver.outputs.n8n_version }}
         run: |
-          {
-            echo "### n8n image built (not pushed)"
-            echo
-            echo '| | |'
-            echo '|---|---|'
-            echo "| tag | \`n8n-landing-zone:${{ steps.ver.outputs.n8n_version }}\` |"
-            echo "| size | $(docker image inspect n8n-landing-zone:${{ steps.ver.outputs.n8n_version }} --format '{{.Size}}' | numfmt --to=iec) |"
-            echo
-            echo 'Push + deploy is the manual step in `docs/n8n-operations.md` §1.'
-          } >> "$GITHUB_STEP_SUMMARY"
+          size=$(docker image inspect "$TAG" --format '{{.Size}}' | numfmt --to=iec)
+          cat >> "$GITHUB_STEP_SUMMARY" <<MD
+          ### n8n image built (not pushed)
+
+          | | |
+          |---|---|
+          | tag | \`$TAG\` |
+          | size | $size |
+
+          Push + deploy is the manual step in \`docs/n8n-operations.md\` §1.
+          MD
