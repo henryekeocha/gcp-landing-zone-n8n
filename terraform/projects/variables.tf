@@ -31,12 +31,6 @@ variable "environments" {
   default     = ["dev", "prod"]
 }
 
-variable "default_region" {
-  description = "Region used for labels and for regional service enablement notes; actual regional resources are declared in the networking/database/n8n modules."
-  type        = string
-  default     = "us-central1"
-}
-
 variable "labels" {
   description = "Labels applied to every project (cost allocation, ownership)."
   type        = map(string)

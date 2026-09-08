@@ -47,9 +47,3 @@ variable "enable_nat_logging" {
   type        = bool
   default     = true
 }
-
-variable "labels" {
-  description = "Labels applied to labelable resources."
-  type        = map(string)
-  default     = { managed_by = "terraform", workload = "n8n" }
-}

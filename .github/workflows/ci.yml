@@ -1,0 +1,103 @@
+name: ci
+
+# Credential-free checks only: fmt, validate, tflint, hadolint, policy guard.
+# No terraform plan/apply (those need a real GCP org; see docs/handoff-runbook.md).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_IN_AUTOMATION: "1"
+  TF_INPUT: "0"
+
+jobs:
+  discover:
+    name: discover modules
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.find.outputs.modules }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        run: |
+          mods=$(find terraform -mindepth 1 -maxdepth 1 -type d -exec sh -c 'ls "$1"/*.tf >/dev/null 2>&1 && echo "$1"' _ {} \; | sort | jq -R . | jq -sc .)
+          echo "modules=$mods" >> "$GITHUB_OUTPUT"
+          echo "Modules: $mods"
+
+  terraform:
+    name: fmt + validate (${{ matrix.module }})
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.discover.outputs.modules) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+      - name: terraform fmt -check
+        run: terraform fmt -check -diff -recursive
+      - name: terraform init (no backend)
+        run: terraform init -backend=false
+      - name: terraform validate
+        run: terraform validate -no-color
+
+  tflint:
+    name: tflint (${{ matrix.module }})
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.discover.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.64.0
+      - name: tflint --init
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: tflint
+        run: tflint --chdir="${{ matrix.module }}" --config="$GITHUB_WORKSPACE/.tflint.hcl" --format compact --minimum-failure-severity=warning
+
+  hadolint:
+    name: hadolint (n8n/Dockerfile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: n8n/Dockerfile
+          failure-threshold: warning
+
+  policy-guard:
+    name: no public SSH/RDP ingress
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_no_public_ssh.py
+
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: raven-actions/actionlint@v2

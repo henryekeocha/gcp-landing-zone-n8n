@@ -1,0 +1,85 @@
+name: build
+
+# Builds the n8n image on every merge to main that touches it. Build-only:
+# pushing to Artifact Registry and rolling the Cloud Run revision need a real
+# GCP project and are the documented manual step in docs/n8n-operations.md §1.
+#
+# When a real org exists, the push becomes:
+#   - uses: google-github-actions/auth@v2
+#       workload_identity_provider: <terraform/iam output workload_identity_provider>
+#       service_account: <terraform/iam output cicd_deployer_service_account_email>
+#   - gcloud auth configure-docker us-central1-docker.pkg.dev
+#   - set push: true below, tags: <registry>/n8n:${N8N_VERSION}
+#   - gcloud run deploy n8n-<env> --image ... --container n8n
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "n8n/**"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: docker build (no push)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read pinned n8n version from Dockerfile
+        id: ver
+        run: |
+          v=$(sed -n 's/^ARG N8N_VERSION=//p' n8n/Dockerfile)
+          echo "n8n_version=$v" >> "$GITHUB_OUTPUT"
+          echo "n8n version: $v"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (local only)
+        uses: docker/build-push-action@v6
+        with:
+          context: n8n
+          file: n8n/Dockerfile
+          push: false
+          load: true
+          tags: n8n-landing-zone:${{ steps.ver.outputs.n8n_version }}
+          build-args: N8N_VERSION=${{ steps.ver.outputs.n8n_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test — binary runs and reports the pinned version
+        run: |
+          set -euo pipefail
+          out=$(docker run --rm n8n-landing-zone:${{ steps.ver.outputs.n8n_version }} n8n --version)
+          echo "n8n --version → $out"
+          test "$out" = "${{ steps.ver.outputs.n8n_version }}"
+
+      - name: Smoke test — refuses to start without a database
+        # DB_TYPE=postgresdb with nothing listening must fail fast, proving the
+        # image really is Postgres-configured and not silently falling back to SQLite.
+        run: |
+          set +e
+          docker run --rm \
+            -e DB_TYPE=postgresdb -e DB_POSTGRESDB_HOST=127.0.0.1 -e DB_POSTGRESDB_PORT=1 \
+            -e DB_POSTGRESDB_CONNECTION_TIMEOUT=3000 -e N8N_ENCRYPTION_KEY=ci-only \
+            n8n-landing-zone:${{ steps.ver.outputs.n8n_version }} 2>&1 | tail -20
+          code=${PIPESTATUS[0]}
+          echo "exit code: $code"
+          test "$code" -ne 0
+
+      - name: Image summary
+        run: |
+          {
+            echo "### n8n image built (not pushed)"
+            echo
+            echo '| | |'
+            echo '|---|---|'
+            echo "| tag | \`n8n-landing-zone:${{ steps.ver.outputs.n8n_version }}\` |"
+            echo "| size | $(docker image inspect n8n-landing-zone:${{ steps.ver.outputs.n8n_version }} --format '{{.Size}}' | numfmt --to=iec) |"
+            echo
+            echo 'Push + deploy is the manual step in `docs/n8n-operations.md` §1.'
+          } >> "$GITHUB_STEP_SUMMARY"
