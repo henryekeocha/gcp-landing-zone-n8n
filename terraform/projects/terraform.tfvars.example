@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. None of these are needed
+# for `terraform validate`, which is all CI runs.
+org_id          = "123456789012"
+billing_account = "ABCDEF-123456-7890AB"
+prefix          = "lz-n8n"
+project_suffix  = "a1"
+environments    = ["dev", "prod"]

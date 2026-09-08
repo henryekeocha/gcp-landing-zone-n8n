@@ -9,7 +9,7 @@ A proof-of-concept **GCP landing zone** — multi-project structure, private net
 Checked off as each phase lands.
 
 - [x] **Phase 0 — Skeleton**: repo structure, license, CI-safe `.gitignore`
-- [ ] **Phase 1 — Projects** (`terraform/projects/`): prod / dev / shared-services project structure
+- [x] **Phase 1 — Projects** (`terraform/projects/`): prod / dev / shared-services project structure
 - [ ] **Phase 2 — Networking** (`terraform/networking/`): per-environment VPC + subnets, IAP-only SSH (no `0.0.0.0/0` ingress), Cloud NAT egress
 - [ ] **Phase 3 — IAM & secrets** (`terraform/iam/`): separate n8n-runtime and CI/CD service accounts, Secret Manager for the n8n encryption key + DB credentials, documented MFA org policy
 - [ ] **Phase 4 — PostgreSQL** (`terraform/database/`): Cloud SQL Postgres, private IP only, backups + PITR, deletion protection, restore runbook
