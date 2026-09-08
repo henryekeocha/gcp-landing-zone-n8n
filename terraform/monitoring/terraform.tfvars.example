@@ -1,0 +1,5 @@
+project_id              = "lz-n8n-prod-a1"
+environment             = "prod"
+n8n_hostname            = "n8n.example.com"
+cloud_sql_instance_name = "prod-n8n-pg-01"
+alert_email_addresses   = ["platform-oncall@example.com"]
