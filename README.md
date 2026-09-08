@@ -11,7 +11,7 @@ Checked off as each phase lands.
 - [x] **Phase 0 — Skeleton**: repo structure, license, CI-safe `.gitignore`
 - [x] **Phase 1 — Projects** (`terraform/projects/`): prod / dev / shared-services project structure
 - [x] **Phase 2 — Networking** (`terraform/networking/`): per-environment VPC + subnets, IAP-only SSH (no `0.0.0.0/0` ingress), Cloud NAT egress
-- [ ] **Phase 3 — IAM & secrets** (`terraform/iam/`): separate n8n-runtime and CI/CD service accounts, Secret Manager for the n8n encryption key + DB credentials, documented MFA org policy
+- [x] **Phase 3 — IAM & secrets** (`terraform/iam/`): separate n8n-runtime and CI/CD service accounts, Secret Manager for the n8n encryption key + DB credentials, documented MFA org policy
 - [ ] **Phase 4 — PostgreSQL** (`terraform/database/`): Cloud SQL Postgres, private IP only, backups + PITR, deletion protection, restore runbook
 - [ ] **Phase 5 — n8n on Cloud Run** (`terraform/n8n/`): n8n with `DB_TYPE=postgresdb`, Cloud SQL Auth Proxy sidecar, secrets injected from Secret Manager
 - [ ] **Phase 6 — CI/CD** (`.github/workflows/`): fmt + validate on PR, container build on merge

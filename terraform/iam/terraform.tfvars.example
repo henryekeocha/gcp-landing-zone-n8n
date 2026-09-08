@@ -1,0 +1,5 @@
+project_id        = "lz-n8n-dev-a1"
+environment       = "dev"
+region            = "us-central1"
+github_repository = "henryekeocha/gcp-landing-zone-n8n"
+ops_members       = ["group:platform-ops@example.com"]
