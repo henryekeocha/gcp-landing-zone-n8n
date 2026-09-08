@@ -1,0 +1,14 @@
+project_id                         = "lz-n8n-prod-a1"
+environment                        = "prod"
+region                             = "us-central1"
+image                              = "us-central1-docker.pkg.dev/lz-n8n-shared-a1/images/n8n:2.37.11"
+service_account_email              = "n8n-runtime-prod@lz-n8n-prod-a1.iam.gserviceaccount.com"
+vpc_network_id                     = "projects/lz-n8n-prod-a1/global/networks/prod-n8n-vpc"
+vpc_subnet_name                    = "prod-n8n-app"
+cloud_sql_instance_connection_name = "lz-n8n-prod-a1:us-central1:prod-n8n-pg-01"
+public_hostname                    = "n8n.example.com"
+secret_ids = {
+  n8n-encryption-key = "n8n-encryption-key-prod"
+  n8n-db-password    = "n8n-db-password-prod"
+  n8n-db-user        = "n8n-db-user-prod"
+}
