@@ -1,0 +1,34 @@
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+*.tfplan
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!*.auto.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Credentials / local config
+.env
+.env.*
+!.env.example
+*.json.key
+service-account*.json
+credentials*.json
+
+# Node (n8n custom nodes, tooling)
+node_modules/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
